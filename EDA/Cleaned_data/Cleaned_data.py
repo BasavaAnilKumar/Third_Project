@@ -1,18 +1,42 @@
 import pandas as pd
 
-# Load the CSV file
-df = pd.read_csv(r"C:\Users\krishna chaithanya\OneDrive\Desktop\Rev_Project2\Generator\ecommerce_raw_data.csv")
+class DataCleaner:
+    def __init__(self, input_file_path, output_file_path):
+        self.input_file_path = input_file_path
+        self.output_file_path = output_file_path
+        self.df = None
 
-# 1. Change negative 'qty' values to positive
-df['qty'] = df['qty'].abs()
+    def load_data(self):
+        """Load data from the CSV file."""
+        self.df = pd.read_csv(self.input_file_path)
 
-# 2. Fill empty 'failure_reason' with 'Success'
-df['failure_reason'] = df['failure_reason'].fillna('Success')
+    def clean_data(self):
+        """Perform data cleaning operations."""
+        # 1. Change negative 'qty' values to positive
+        self.df['qty'] = self.df['qty'].abs()
 
-# 3. Change 'payment_txn_success' to 'N' if not 'Y'
-df['payment_txn_success'] = df['payment_txn_success'].apply(lambda x: 'Y' if x == 'Y' else 'N')
+        # 2. Fill empty 'failure_reason' with 'Success'
+        self.df['failure_reason'] = self.df['failure_reason'].fillna('Success')
 
-# Save the cleansed data back to a new CSV file
-df.to_csv('ecommerce_cleansed_data.csv', index=False)
+        # 3. Change 'payment_txn_success' to 'N' if not 'Y'
+        self.df['payment_txn_success'] = self.df['payment_txn_success'].apply(
+            lambda x: 'Y' if x == 'Y' else 'N'
+        )
 
-print("Data cleansing completed and saved to 'ecommerce_cleansed_data.csv'.")
+    def save_data(self):
+        """Save the cleansed data to a new CSV file."""
+        self.df.to_csv(self.output_file_path, index=False)
+        print(f"Cleansed data saved to {self.output_file_path}")
+
+if __name__ == "__main__":
+    # Specify the input and output file paths
+    input_file_path = r"C:\Users\MrAKB\OneDrive\Desktop\Rev_Project2\ecommerce_raw_data.csv"
+    output_file_path = r"C:\Users\MrAKB\OneDrive\Desktop\Rev_Project2\ecommerce_cleansed_data.csv"
+
+    # Create an instance of DataCleaner
+    cleaner = DataCleaner(input_file_path, output_file_path)
+
+    # Execute the cleaning process
+    cleaner.load_data()
+    cleaner.clean_data()
+    cleaner.save_data()

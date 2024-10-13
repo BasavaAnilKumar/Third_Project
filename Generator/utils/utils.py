@@ -28,7 +28,7 @@ countries = {
     'India': ['Hyderabad', 'Delhi', 'Bengaluru', 'Chennai', 'Mumbai'],
     'Australia': ['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide'],
     'Canada': ['Toronto', 'Vancouver', 'Montreal', 'Calgary', 'Ottawa'],
-    'Japan': ['Tokyo', 'Osaka', 'Kyoto', 'Yokohama', 'Sapporo'],
+    'Japan': ['Tokyo', 'Osaka', 'Kyoto', 'Yokohama', 'Sapporo']
     
 }
 

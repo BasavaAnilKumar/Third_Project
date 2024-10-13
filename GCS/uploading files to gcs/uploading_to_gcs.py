@@ -1,49 +1,46 @@
-import os
 from google.cloud import storage
+from google.oauth2 import service_account
 
-def upload_file_to_folder(bucket_name, source_file_name, folder_name, destination_blob_name):
-    """Uploads a file to a specific folder in the GCS bucket."""
-    try:
-        # Initialize a GCS client
-        storage_client = storage.Client(project='My First Project')
+class GCSUploader:
+    def __init__(self, bucket_name, key_path):
+        """Initializes the uploader with the specified bucket and credentials."""
+        self.bucket_name = bucket_name
+        self.key_path = key_path
+        self.credentials = service_account.Credentials.from_service_account_file(key_path)
+        self.storage_client = storage.Client(credentials=self.credentials)
+        self.bucket = self.storage_client.bucket(bucket_name)
 
+    def upload_csv(self, source_file_name, destination_blob_name, folder_name=None):
+        """Uploads a CSV file to the specified folder in the GCS bucket."""
+        try:
+            # Create the destination path, including the folder if provided
+            if folder_name:
+                destination_blob_name = f"{folder_name}/{destination_blob_name}"
 
-        # Get the bucket
-        bucket = storage_client.bucket(bucket_name)
+            # Get the blob and upload the file
+            blob = self.bucket.blob(destination_blob_name)
+            blob.upload_from_filename(source_file_name)
 
-        # Append the folder name to the destination blob name
-        destination_path = f"{folder_name}/{destination_blob_name}"
+            print(f"File {source_file_name} uploaded to {self.bucket_name}/{destination_blob_name}.")
+        
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
-        # Get the blob (file in the folder)
-        blob = bucket.blob(destination_path)
-
-        # Upload the file to the folder in the bucket
-        blob.upload_from_filename(source_file_name)
-        print(f"File {source_file_name} uploaded to {bucket_name}/{destination_path} successfully uploaded.")
-    except Exception as e:
-        print(f"Error uploading file: {e}")
-
+# Example usage
 if __name__ == "__main__":
-    try:
-        # Configuration
-        bucket_name = "rev_pro2anil"  # Replace with your desired bucket name
-        source_file_name = r"C:\Users\MrAKB\OneDrive\Desktop\Rev_Project2\GCS\uploading files to gcs\ecommerce_raw_data.csv" # Replace with the file path you want to upload
-        folder_name = "gendata"  # Folder in the GCS bucket
-        destination_blob_name = "ecommerce_raw_data.csv"  # The desired file name in the bucket
+    # Initialize uploader for the first file
+    bucket_name = "rev_pro2anil"
+    key_path = r"C:\Service accounts\trans-parsec-433112-p7-1089350c80d6.json"
+    uploader = GCSUploader(bucket_name, key_path)
 
-        # Upload the file to the folder in the bucket
-        upload_file_to_folder(bucket_name, source_file_name, folder_name, destination_blob_name)
+    # Upload first CSV file
+    source_file_name = r"C:\Users\MrAKB\OneDrive\Desktop\Rev_Project2\ecommerce_raw_data.csv"  # File to upload
+    destination_blob_name = "ecommerce_raw_data.csv"
+    folder_name = "gendata"
+    uploader.upload_csv(source_file_name, destination_blob_name, folder_name)
 
-        # Configuration
-        bucket_name = "rev_pro2anil"  # Replace with your desired bucket name
-        source_file_name = r"C:\Users\MrAKB\OneDrive\Desktop\Rev_Project2\GCS\uploading files to gcs\ecommerce_cleansed_data.csv" # Replace with the file path you want to upload
-        folder_name = "cleandata"  # Folder in the GCS bucket
-        destination_blob_name = "ecommerce_cleansed_data.csv"  # The desired file name in the bucket
-
-        # Upload the file to the folder in the bucket
-        upload_file_to_folder(bucket_name, source_file_name, folder_name, destination_blob_name)
-
-    except FileNotFoundError as fnf_error:
-        print(f"Error: {fnf_error}")
-    except Exception as e:
-        print(f"Error occurred: {str(e)}")
+    # Upload second CSV file
+    source_file_name = r"C:\Users\MrAKB\OneDrive\Desktop\Rev_Project2\ecommerce_cleansed_data.csv"  
+    destination_blob_name = "cleaned_ecom_data.csv"
+    folder_name = "cleandata"
+    uploader.upload_csv(source_file_name, destination_blob_name, folder_name)
